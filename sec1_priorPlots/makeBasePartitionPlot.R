@@ -1,7 +1,6 @@
-makePartitionPlot <- function(partitionMatrix, probabilities, c0, name, highlightColor = "#00B0DA", xLabel = ""){
+makeBasePartitionPlot <- function(partitionMatrix, probabilities, c0, name, highlightColor = "#00B0DA", xLabel = ""){
 	require(ggplot2)
-	require(grid)
-	require(gridExtra)
+	
 	require(latex2exp)
 
 	nBlocks = apply(partitionMatrix, 1, function(x) length(unique(x)))
@@ -39,16 +38,7 @@ makePartitionPlot <- function(partitionMatrix, probabilities, c0, name, highligh
 	      axis.text.x = element_text(margin = margin(t = -1.5, unit = "cm"), size = rel(1.6)),
 	      axis.title.x=element_text(size=20,face="bold"),
 	       axis.title.y.right=element_text(size=20)
-	      ) + xlab(TeX(xLabel)) 
+	      ) + xlab(TeX(xLabel))
 	
-	pt = p + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.01,ymax = 0.01,  xmin = -.5,xmax = 0.1) +
-	annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.25, ymax = 0.25,  xmin = -.5,xmax = 0.1) +
-	annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.65,ymax = 0.65, xmin = -.5,xmax = 0.1) +
-	annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.85,ymax = 0.85,  xmin = -.5,xmax = 0.1) +
-	annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.99,ymax = 0.99,  xmin = -.5,xmax = 0.1)
 
-
-	gt <- ggplot_gtable(ggplot_build(pt))
-	gt$layout$clip[gt$layout$name == "panel"] <- "off"
-	grid_p = grid.arrange(gt)
 }

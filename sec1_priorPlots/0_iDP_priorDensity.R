@@ -1,12 +1,17 @@
 #################
 ## Sally Paganin
 ## 2023/14/03 
-## induced prior on the partition space
 #################
-library(latex2exp)
+## This script produces a density plot over the set partition space of 5 elements
+## for the informed partition model 
+#################
 library(CPLogit)
+require(grid)
+require(gridExtra)
 source("iCRP_densityFunction.R")
 source("makePartitionPlot.R")
+####################################
+## values of alpha parameter
 alphaVec <- seq(0, 1, length = 11)
 ####################################
 ## Example 1 - same pegging probabilities
@@ -35,14 +40,27 @@ partMat <- partMat + 1
 
 probabilities <- apply(partMat, 1,  function(x) apply(alphaMat, 1, function(y) dIDP(x, part0 = FirstPart, concentration = M, alpha = y)))
 
-plotRes <- makePartitionPlot(partitionMatrix = partMat, 
+plotRes <- makeBasePartitionPlot(partitionMatrix = partMat, 
 			probabilities = t(probabilities),
 			c0 = FirstPart,
 			name = name,
 			xLabel = "$\\alpha_i = \\alpha$")
-# plotRes
 
-ggsave(plotRes, file = paste0("iCRP_", name, ".pdf"), 
+plotRes <-  plotRes +  theme(plot.title = element_text(hjust = 0.5)) + ggtitle("Informed Partition Model")
+pt <- plotRes + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.01,ymax = 0.01,  xmin = -.5,xmax = 0.1) +
+	annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.25, ymax = 0.25,  xmin = -.5,xmax = 0.1) +
+	annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.65,ymax = 0.65, xmin = -.5,xmax = 0.1) +
+	annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.85,ymax = 0.85,  xmin = -.5,xmax = 0.1) +
+	annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.99,ymax = 0.99,  xmin = -.5,xmax = 0.1)
+
+
+gt <- ggplot_gtable(ggplot_build(pt))
+gt$layout$clip[gt$layout$name == "panel"] <- "off"
+grid_p = grid.arrange(gt)
+
+
+# plotRes
+ggsave(grid_p, file = paste0("figures/fig1_iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 ####################################
@@ -70,7 +88,7 @@ plotRes <- makePartitionPlot(partitionMatrix = partMat,
 			xLabel = "$(\\alpha_{3}, \\alpha_{4}, \\alpha_{5}) = \\alpha$ for fixed $\\alpha_{1} = \\alpha_{2} = 0$")
 
 
-ggsave(plotRes, file = paste0("iCRP_", name, ".pdf"), 
+ggsave(plotRes, file = paste0("figures/iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 ################################
@@ -87,7 +105,7 @@ plotRes <- makePartitionPlot(partitionMatrix = partMat,
 			name = name,
 			xLabel = "$(\\alpha_{3}, \\alpha_{4}, \\alpha_{5}) = \\alpha$ for fixed $\\alpha_{1} = \\alpha_{2} = 0.5$")
 
-ggsave(plotRes, file = paste0("iCRP_", name, ".pdf"), 
+ggsave(plotRes, file = paste0("figures/iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 ################################
@@ -102,7 +120,7 @@ plotRes <- makePartitionPlot(partitionMatrix = partMat,
 			name = name,
 			xLabel = "$(\\alpha_{3}, \\alpha_{4}, \\alpha_{5}) = \\alpha$ for fixed $\\alpha_{1} = \\alpha_{2} = 0.6$")
 
-ggsave(plotRes, file = paste0("iCRP_", name, ".pdf"), 
+ggsave(plotRes, file = paste0("figures/iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 
@@ -119,7 +137,7 @@ plotRes <- makePartitionPlot(partitionMatrix = partMat,
 			name = name,
 			xLabel = "$(\\alpha_{3}, \\alpha_{4}, \\alpha_{5}) = \\alpha$ for fixed $\\alpha_{1} = \\alpha_{2} = 0.8$")
 
-ggsave(plotRes, file = paste0("iCRP_", name, ".pdf"), 
+ggsave(plotRes, file = paste0("figures/iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 ######
@@ -135,7 +153,7 @@ plotRes <- makePartitionPlot(partitionMatrix = partMat,
 			name = name,
 			xLabel = "$(\\alpha_{3}, \\alpha_{4}, \\alpha_{5}) = \\alpha$ for fixed $\\alpha_{1} = \\alpha_{2} = 0.9$")
 
-ggsave(plotRes, file = paste0("iCRP_", name, ".pdf"), 
+ggsave(plotRes, file = paste0("figures/iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 
