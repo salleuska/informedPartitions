@@ -1,4 +1,8 @@
 ############################
+## This script compute the density function for the informed partition model
+## using the Dirichlet Process EPPF
+############################
+
 ## Function for relabeling
 relabel <- function(partition){
 	out <- as.numeric(factor(partition, levels = unique(partition)))
@@ -23,7 +27,6 @@ dpEPPF <- function(partition, concentration, returnLog = FALSE){
 
 
 ############################
-
 # gamma <- c(0,0,1)
 # part0 <- c(0,0,1)
 # partition <- c(0,1,2)

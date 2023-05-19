@@ -1,17 +1,18 @@
 ####################
 ## Sally Paganin
-## Dec 2 2022
+## 2023/05/19
 ####################
+## This script produces a density plot over the set partition space of 5 elements
+## for the centered partition process 
 ####################
 library(CPLogit)
 library(ggplot2)
 library(grid)
+library(reshape2)
 library(gridExtra)
 ####################
-## Check CP process using normalized distance
-####################
 # Bell numbers - sequence A000110
-bell_n = c(1, 2, 5, 15, 52, 203, 877, 4140, 21147, 115975, 678570, 4213597, 27644437, 190899322, 1382958545, 10480142147, 82864869804)
+bell_n <- c(1, 2, 5, 15, 52, 203, 877, 4140, 21147, 115975, 678570, 4213597, 27644437, 190899322, 1382958545, 10480142147, 82864869804)
 ####################
 ## Functions for the CP prior
 ####################
@@ -27,11 +28,11 @@ CPpenalization <- function(distance, psi, returnLog = FALSE) {
 ## Dirichlet Process EPPF e
 ####################
 dpEPPF <- function(partition, concentration, returnLog = FALSE){
-  nObs = length(partition)
-  nBlocks = length(unique(partition))
-  blockSizes = table(partition)
+  nObs  <- length(partition)
+  nBlocks  <- length(unique(partition))
+  blockSizes  <- table(partition)
   
-  logProb = nBlocks*log(concentration) + sum(lgamma(blockSizes))
+  logProb  <- nBlocks*log(concentration) + sum(lgamma(blockSizes))
   
   if(returnLog) {
      logProb   
@@ -44,14 +45,14 @@ dpEPPF <- function(partition, concentration, returnLog = FALSE){
 ## Finite Dirichlet EPPF
 ###########################
 
-finiteDirichletEPPF = function(partition, concentration, nClusters, returnLog = FALSE){
-  nObs = length(partition)
-  nBlocks = length(unique(partition))
-  blockSizes = table(partition)
+finiteDirichletEPPF <- function(partition, concentration, nClusters, returnLog = FALSE){
+  nObs  <- length(partition)
+  nBlocks  <- length(unique(partition))
+  blockSizes  <- table(partition)
   
-  log_c = 0
-  if(nBlocks < nClusters) {log_c = - lgamma(nClusters - nBlocks +1)}
-  logProb =   lgamma(nClusters +1) + log_c + sum(lgamma(concentration/nClusters + blockSizes) - lgamma(concentration/H))
+  log_c  <- 0
+  if(nBlocks < nClusters) {log_c  <- - lgamma(nClusters - nBlocks +1)}
+  logProb  <-   lgamma(nClusters +1) + log_c + sum(lgamma(concentration/nClusters + blockSizes) - lgamma(concentration/H))
   ##  + lgamma(concentration) - lgamma(concentration + nObs) # (normalizaoitn constant)
   
   if(returnLog) {
@@ -65,17 +66,17 @@ finiteDirichletEPPF = function(partition, concentration, nClusters, returnLog = 
 ## Pitman-Yor process eppf
 ##############################
 pyEPPF <- function(partition, concentration, discount, returnLog = FALSE){
-  n = length(partition)
-  nBlocks = length(unique(partition))
-  blockSizes = table(partition)
+  n  <-length(partition)
+  nBlocks  <-length(unique(partition))
+  blockSizes  <-table(partition)
   
   if(nBlocks == 1){
-    logProb = -
+    logProb  <--
       lgamma(n + concentration) + lgamma(concentration + 1) + 
       sum(lgamma(discount + blockSizes) - lgamma(1 - discount))   
 
   } else {
-    logProb =  sum(log(concentration + 1:(nBlocks-1)*discount)) - 
+    logProb  <- sum(log(concentration + 1:(nBlocks-1)*discount)) - 
       lgamma(n + concentration) + lgamma(concentration + 1) + 
       sum(lgamma(discount + blockSizes) - lgamma(1 - discount))   
   }
@@ -89,56 +90,48 @@ pyEPPF <- function(partition, concentration, discount, returnLog = FALSE){
 }
 
 ##################
-## Plotting
+## Computation and plotting
 ##################
-## Set c0 partition color
-col2 = "#00B0DA"
+## Settings ----
+## Set partition color for c0
+col2 <- "#00B0DA"
+alpha <- 1  ## DP concentration parameter
+psiVal <- c(0,0.5,1,1.5,2,2.5,3, 3.5, 4, 4.5, 5)
 
-# ## Set a list of c0 partitions
-# c0_list = list(c(0,0,0,0,0), 
-#             c(0,0,0,1,1),
-#             c(0,0,1,1,2),
-#             c(0,0,1,2,3),
-#             c(0,1,2,3,4))
-
-###########################
-## DP process ----- 
-###########################
-alpha <- 1
-psiVal = c(0,0.5,1,1.5,2,2.5, 3, 3.5, 4, 4.5, 5)
-
-c0 <- c(1,1, 2,2,2) -1 
-
-## Compute distances from c0 and generate all possible partitions
-dd = CPLogit::dist_from(c0, return_partitions = TRUE)
-
+c0 <- c(1,1,2,2,2) -1 
+####################
+## Computation -----
+## Generate all possible partitions and compute distances from c0 and g
+dd <- CPLogit::dist_from(c0, return_partitions = TRUE)
 ## Numerator of CP process penalization
-CPNum = sapply(psiVal, function(x) CPpenalization(dd$distances, psi = x))
+CPNum <- sapply(psiVal, function(x) CPpenalization(dd$distances, psi = x))
 ## Numerator of DP process EPP
-DPNum = apply(dd$partitions, 1 ,function(x) dpEPPF(partition = x, concentration =  alpha))
+DPNum  <-apply(dd$partitions, 1 ,function(x) dpEPPF(partition = x, concentration =  alpha))
+## Compute normalized partition probabilities
+partitionProbs  <-apply(CPNum, 2, function(x) (DPNum*x)/sum(DPNum*x))
 
-# p_dir = apply(dd$partitions, 1 ,function(x) dir_eppf(x, 1/2, 5))
+####################
+## Plotting ----
 
-### ORDER PARTITIONS
-nBlocks = apply(dd$partition, 1, function(x) length(unique(x)))
-biggestBlock = apply(dd$partition, 1, function(x) max(table(x)))
-indBiggestBlock = order(as.numeric(paste(nBlocks, biggestBlock, sep = "")), decreasing = TRUE)
-# 
+### sort partition by block size
+nBlocks  <-apply(dd$partition, 1, function(x) length(unique(x)))
+biggestBlock  <-apply(dd$partition, 1, function(x) max(table(x)))
+indBiggestBlock <- order(as.numeric(paste(nBlocks, biggestBlock, sep = "")), decreasing = TRUE)
 
-partitionProbs = apply(CPNum, 2, function(x) (DPNum*x)/sum(DPNum*x))
 
-tmp = partitionProbs[indBiggestBlock, ]
-df = reshape2::melt(tmp) ## data frame Var1 = partition index Var2 psi index 
+tmp  <-partitionProbs[indBiggestBlock, ]
+df  <-melt(tmp) ## data frame Var1 = partition index Var2 psi index 
 
 ## Find position of the c0 partition
-c0Pos = which(apply(dd$partitions[indBiggestBlock, ], 1, function(x) all(x == c0)))
+c0Pos  <-which(apply(dd$partitions[indBiggestBlock, ], 1, function(x) all(x == c0)))
+df$isC0  <-as.numeric(df$Var1==c0Pos)
 
-df$isC0 = as.numeric(df$Var1==c0Pos)
+df$name <- "Centered Partition Process"
 
 g <- grouping(nBlocks[indBiggestBlock])
 
-yTicks = 1 - c(cumsum(tmp[,1])[g[attr(g, "ends")]], 0)
-p = ggplot(df, aes(x = Var2, y = value)) + 
+yTicks <- 1 - c(cumsum(tmp[,1])[g[attr(g, "ends")]], 0)
+p <- ggplot(df, aes(x = Var2, y = value)) + 
   geom_area(aes(group = Var1, fill = factor(isC0)),col = "grey20" ) +
   scale_fill_manual(values = c('grey90',col2))+
   theme_minimal(18) +
@@ -148,30 +141,29 @@ p = ggplot(df, aes(x = Var2, y = value)) +
                      sec.axis = sec_axis(trans = ~., name = "Cumulative probability", breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
                                          labels = c("0.0", "0.2", "0.4", "0.6", "0.8", "1.0"))) +
   theme(axis.title.y.left = element_blank(), axis.text.y.left = element_blank(), 
-        axis.ticks.y.left = element_line(size = 0.6, colour = "grey20", linetype = "dotted"),
+        axis.ticks.y.left = element_line(linewidth = 0.6, colour = "grey20", linetype = "dotted"),
         axis.ticks.length.y.left  = unit(2, "cm"),
         axis.ticks.length.x.bottom  = unit(2, "cm"),
         axis.text.y.right = element_text( size = rel(1.6)),
         axis.ticks.x = element_blank(),
         axis.text.x = element_text(margin = margin(t = -1.5, unit = "cm"), size = rel(1.6)),
         axis.title.x=element_text(size=20,face="bold"),
-         axis.title.y.right=element_text(size=20)
+         axis.title.y.right=element_text(size=20),
+         plot.title = element_text(hjust = 0.5)
         ) +
-  xlab(expression(psi)) 
+  xlab(expression(psi)) + ggtitle("Centered Partition Process")
 
-pt = p + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.01,ymax = 0.01,  xmin = 0,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.25, ymax = 0.25,  xmin = 0,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.65,ymax = 0.65, xmin = 0,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.85,ymax = 0.85,  xmin = 0,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = 0.99,ymax = 0.99,  xmin = 0,xmax = 0.5)
-
+pt <- p + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[1] + 0.02,ymax = yTicks[1] + 0.02,  xmin = -0.5,xmax = 0.5) +
+annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[2] + 0.02, ymax = yTicks[2] + 0.02,  xmin = -0.5,xmax = 0.5) +
+annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[3] + 0.02,ymax = yTicks[3] + 0.02, xmin = -0.5,xmax = 0.5) +
+annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[4] + 0.02 ,ymax = yTicks[4] + 0.02,  xmin = -0.5,xmax = 0.5) +
+annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[5] + 0.02,ymax = yTicks[5] + 0.02,  xmin = -0.5,xmax = 0.5)
 
 gt <- ggplot_gtable(ggplot_build(pt))
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid_p = grid.arrange(gt)
 
-
-ggsave(grid_p, file = paste0("CP_dp.pdf"), 
+ggsave(grid_p, file = paste0("figures/fig1_CP_priorDensity.pdf"), 
     device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
 
 
