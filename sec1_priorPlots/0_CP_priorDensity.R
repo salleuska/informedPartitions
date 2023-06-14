@@ -131,16 +131,40 @@ df$name <- "Centered Partition Process"
 g <- grouping(nBlocks[indBiggestBlock])
 
 yTicks <- 1 - c(cumsum(tmp[,1])[g[attr(g, "ends")]], 0)
+# p <- ggplot(df, aes(x = Var2, y = value)) + 
+#   geom_area(aes(group = Var1, fill = factor(isC0)),col = "grey20" ) +
+#   scale_fill_manual(values = c('grey90',col2))+
+#   theme_minimal(18) +
+#   scale_x_continuous(breaks = 1:length(psiVal),labels = psiVal) +
+#   theme(legend.position = 'none',plot.margin=grid::unit(c(1,1,1,1), "cm")) + 
+#   scale_y_continuous(breaks= yTicks, limits = c(0, 1), expand = c(0, 0),
+#                      sec.axis = sec_axis(trans = ~., name = "Cumulative probability", breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
+#                                          labels = c("0.0", "0.2", "0.4", "0.6", "0.8", "1.0"))) +
+#   theme(axis.title.y.left = element_blank(), axis.text.y.left = element_blank(), 
+#         axis.ticks.y.left = element_line(linewidth = 0.6, colour = "grey20", linetype = "dotted"),
+#         axis.ticks.length.y.left  = unit(2, "cm"),
+#         axis.ticks.length.x.bottom  = unit(2, "cm"),
+#         axis.text.y.right = element_text( size = rel(1.6)),
+#         axis.ticks.x = element_blank(),
+#         axis.text.x = element_text(margin = margin(t = -1.5, unit = "cm"), size = rel(1.6)),
+#         axis.title.x=element_text(size=20,face="bold"),
+#          axis.title.y.right=element_text(size=20),
+#          plot.title = element_text(hjust = 0.5)
+#         ) +
+#   xlab(expression(psi)) + ggtitle("Centered Partition Process")
+# p
+
 p <- ggplot(df, aes(x = Var2, y = value)) + 
   geom_area(aes(group = Var1, fill = factor(isC0)),col = "grey20" ) +
   scale_fill_manual(values = c('grey90',col2))+
-  theme_minimal(18) +
-  scale_x_continuous(breaks = 1:length(psiVal),labels = psiVal) +
+  theme_bw(18) +
+  scale_x_continuous(breaks = 1:length(psiVal),labels = psiVal, expand = c(0, 0)) +
   theme(legend.position = 'none',plot.margin=grid::unit(c(1,1,1,1), "cm")) + 
   scale_y_continuous(breaks= yTicks, limits = c(0, 1), expand = c(0, 0),
                      sec.axis = sec_axis(trans = ~., name = "Cumulative probability", breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
                                          labels = c("0.0", "0.2", "0.4", "0.6", "0.8", "1.0"))) +
-  theme(axis.title.y.left = element_blank(), axis.text.y.left = element_blank(), 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+        axis.title.y.left = element_blank(), axis.text.y.left = element_blank(), 
         axis.ticks.y.left = element_line(linewidth = 0.6, colour = "grey20", linetype = "dotted"),
         axis.ticks.length.y.left  = unit(2, "cm"),
         axis.ticks.length.x.bottom  = unit(2, "cm"),
@@ -152,18 +176,19 @@ p <- ggplot(df, aes(x = Var2, y = value)) +
          plot.title = element_text(hjust = 0.5)
         ) +
   xlab(expression(psi)) + ggtitle("Centered Partition Process")
+#p
 
-pt <- p + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[1] + 0.02,ymax = yTicks[1] + 0.02,  xmin = -0.5,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[2] + 0.02, ymax = yTicks[2] + 0.02,  xmin = -0.5,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[3] + 0.02,ymax = yTicks[3] + 0.02, xmin = -0.5,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[4] + 0.02 ,ymax = yTicks[4] + 0.02,  xmin = -0.5,xmax = 0.5) +
-annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[5] + 0.02,ymax = yTicks[5] + 0.02,  xmin = -0.5,xmax = 0.5)
+pt <- p + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[1] + 0.02,ymax = yTicks[1] + 0.02,  xmin = -0.6,xmax = 0.6) +
+annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[2] + 0.02, ymax = yTicks[2] + 0.02,  xmin = -0.6,xmax = 0.6) +
+annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[3] + 0.02,ymax = yTicks[3] + 0.02, xmin = -0.6,xmax = 0.6) +
+annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[4] + 0.02 ,ymax = yTicks[4] + 0.02,  xmin = -0.6,xmax = 0.6) +
+annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = yTicks[5] + 0.02,ymax = yTicks[5] + 0.02,  xmin = -0.6,xmax = 0.6)
 
 gt <- ggplot_gtable(ggplot_build(pt))
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid_p = grid.arrange(gt)
 
 ggsave(grid_p, file = paste0("figures/fig1_CP_priorDensity.pdf"), 
-    device = "pdf", height = 20, width = 25, unit = "cm", dpi = 300) 
+    device = "pdf", height = 20, width = 22, unit = "cm", dpi = 300) 
 
 
