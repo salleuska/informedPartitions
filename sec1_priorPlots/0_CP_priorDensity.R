@@ -96,7 +96,8 @@ pyEPPF <- function(partition, concentration, discount, returnLog = FALSE){
 ## Set partition color for c0
 col2 <- "#00B0DA"
 alpha <- 1  ## DP concentration parameter
-psiVal <- c(0,0.5,1,1.5,2,2.5,3, 3.5, 4, 4.5, 5)
+# psiVal <- c(0,0.5,1,1.5,2,2.5,3, 3.5, 4, 4.5, 5)
+psiVal <- seq(0, 10,length = 11)
 
 c0 <- c(1,1,2,2,2) -1 
 ####################
@@ -192,3 +193,5 @@ ggsave(grid_p, file = paste0("figures/fig1_CP_priorDensity.pdf"),
     device = "pdf", height = 20, width = 22, unit = "cm", dpi = 300) 
 
 
+
+####################################################################################################
