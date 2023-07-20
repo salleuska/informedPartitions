@@ -1,3 +1,8 @@
+//-----------------------------------------#
+// This code has been done by Adam N. Smith and downloaded on 05/24/2023 from 
+// https://github.com/adam-n-smith/demand-models-random-partitions
+//-----------------------------------------#
+
 #include <RcppArmadillo.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]

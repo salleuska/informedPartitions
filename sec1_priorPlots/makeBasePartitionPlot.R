@@ -1,4 +1,4 @@
-makeBasePartitionPlot <- function(partitionMatrix, probabilities, c0, name, highlightColor = "#00B0DA", xLabel = "", minimal = FALSE){
+makeBasePartitionPlot <- function(partitionMatrix, probabilities, c0, name, highlightColor = "#00B0DA", xLabel = "", minimal = FALSE, xVec = alphaVec){
 	require(ggplot2)
 	require(latex2exp)
 
@@ -23,7 +23,7 @@ makeBasePartitionPlot <- function(partitionMatrix, probabilities, c0, name, high
 	geom_area(aes(group = Var1, fill = factor(isC0)),col = "grey20" ) +
 	scale_fill_manual(values = c('grey90',highlightColor))+
 	theme_bw(18) + scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) + 
-	scale_x_continuous(breaks = 1:length(alphaVec),labels = alphaVec, expand = c(0, 0))+
+	scale_x_continuous(breaks = 1:length(xVec),labels = xVec, expand = c(0, 0))+
 		theme(legend.position = 'none',  plot.margin=grid::unit(c(1,1,1,1), "cm")) + 
 		#theme(plot.margin=grid::unit(c(1,1,1,1), "cm"))
 	theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 

@@ -6,6 +6,7 @@
 ## for the informed partition model 
 #################
 library(CPLogit)
+library(reshape2)
 require(grid)
 require(gridExtra)
 source("iCRP_densityFunction.R")
@@ -49,7 +50,7 @@ res <- makeBasePartitionPlot(partitionMatrix = partMat,
 plotRes <-  res$plot +  theme(plot.title = element_text(hjust = 0.5)) + ggtitle("Informed Partition Model")
 
 
-plotRes <- plotRes + scale_y_continuous(breaks= yTicks, limits = c(0, 1), expand = c(0, 0),
+plotRes <- plotRes + scale_y_continuous(breaks= res$yTicks, limits = c(0, 1), expand = c(0, 0),
 	                   sec.axis = sec_axis(trans = ~., name = "Cumulative probability", breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
 	                                       labels = c("0.0", "0.2", "0.4", "0.6", "0.8", "1.0"))) 
 	
@@ -68,6 +69,35 @@ grid_p = grid.arrange(gt)
 # plotRes
 ggsave(grid_p, file = paste0("figures/fig1_iCRP_", name, ".pdf"), 
 		device = "pdf", height = 20, width = 22, unit = "cm", dpi = 300) 
+
+####################################
+### HEATMAP
+
+partMat <- dist_from(FirstPart, return_partitions = TRUE)$partitions
+partMat <- partMat + 1
+partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
+
+
+colnames(probabilities) <- partVec
+rownames(probabilities) <- alphaMat[,1]
+
+probs <- t(probabilities[-which(colnames(probabilities) == "11222"), ])
+
+probsDF <- melt(probs)
+probsDF$Var1 <- factor(probsDF$Var1)
+probsDF$Var2 <- factor(probsDF$Var2)
+
+# Color Brewer palette
+ggplot(probsDF, aes(Var1, Var2, fill= value)) + 
+  geom_tile() +
+  scale_fill_gradientn(colors = hcl.colors(20, "RdYlGn")) +
+    xlab("partition") + ylab("") +
+   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave(file = paste0("figures/fig2_iCRP_heatmap.pdf"), 
+    device = "pdf", height = 8, width = 32, unit = "cm", dpi = 300) 
+
+
 
 ####################################
 ## Example 2 - changing probabilities for bigger cluster

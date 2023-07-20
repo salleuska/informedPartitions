@@ -1,3 +1,8 @@
+##-----------------------------------------#
+## This code has been done by Adam N. Smith and downloaded on 05/24/2023 from 
+## https://github.com/adam-n-smith/demand-models-random-partitions
+##-----------------------------------------#
+
 library(Rcpp)
 library(RcppArmadillo)
 library(ggplot2)
@@ -5,7 +10,9 @@ library(reshape2)
 # library(shallot)
 # library(clues)
 
-sourceCpp("dmrpfunctions.cpp")
+## original
+# sourceCpp("dmrpfunctions.cpp")
+sourceCpp("LSP/dmrpfunctions.cpp")
 
 # ------------------------------------------------------------------ #
 # functions
@@ -54,6 +61,8 @@ ggplot(data=upsm,aes(x=Var1,y=Var2,fill=value)) +
   scale_y_discrete(expand=c(0.001,0.001),limits=labs) +
   scale_fill_gradient2(low="white",high="grey24") +
   coord_fixed()
+
+
 
 # ------------------------------------------------------------- #
 # LSP pairwise similarity w/ covariates (FIGURE 2)

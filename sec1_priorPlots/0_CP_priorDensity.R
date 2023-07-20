@@ -192,6 +192,31 @@ grid_p = grid.arrange(gt)
 ggsave(grid_p, file = paste0("figures/fig1_CP_priorDensity.pdf"), 
     device = "pdf", height = 20, width = 22, unit = "cm", dpi = 300) 
 
-
-
 ####################################################################################################
+## Heatmap
+
+partMat <- dist_from(c0, return_partitions = TRUE)$partitions
+partMat <- partMat + 1
+partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
+
+colnames(partitionProbs) <- psiVal
+rownames(partitionProbs) <- partVec
+
+probs <- partitionProbs[-which(rownames(partitionProbs) == "11222"), ]
+
+probsDF <- melt(probs)
+probsDF$Var1 <- factor(probsDF$Var1)
+probsDF$Var2 <- factor(probsDF$Var2)
+
+# Color Brewer palette
+ggplot(probsDF, aes(Var1, Var2, fill= value)) + 
+  geom_tile() +
+  scale_fill_gradientn(colors = hcl.colors(20, "RdYlGn")) +
+    xlab("partition") + ylab("") +
+   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave(file = paste0("figures/fig2_CP_heatmap.pdf"), 
+    device = "pdf", height = 8, width = 32, unit = "cm", dpi = 300) 
+
+
+
