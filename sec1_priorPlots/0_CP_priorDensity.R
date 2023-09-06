@@ -98,6 +98,7 @@ col2 <- "#00B0DA"
 alpha <- 1  ## DP concentration parameter
 # psiVal <- c(0,0.5,1,1.5,2,2.5,3, 3.5, 4, 4.5, 5)
 psiVal <- seq(0, 10,length = 11)
+#psiVal <- seq(0, 15,length = 16)
 
 c0 <- c(1,1,2,2,2) -1 
 ####################
@@ -193,7 +194,7 @@ ggsave(grid_p, file = paste0("figures/fig1_CP_priorDensity.pdf"),
     device = "pdf", height = 20, width = 22, unit = "cm", dpi = 300) 
 
 ####################################################################################################
-## Heatmap
+## Heatmap other partitions
 
 partMat <- dist_from(c0, return_partitions = TRUE)$partitions
 partMat <- partMat + 1
@@ -202,6 +203,7 @@ partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
 colnames(partitionProbs) <- psiVal
 rownames(partitionProbs) <- partVec
 
+saveRDS(partitionProbs, "CPP_partitionProbs.rds")
 probs <- partitionProbs[-which(rownames(partitionProbs) == "11222"), ]
 
 probsDF <- melt(probs)

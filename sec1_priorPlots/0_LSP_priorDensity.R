@@ -90,6 +90,8 @@ partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
 colnames(probs) <- tauVec
 rownames(probs) <- partVec
 
+saveRDS(probs, file = "LSP_partitionProbs.rds")
+
 probs2 <- probs[-which(rownames(probs) == "11222"), ]
 
 probsDF <- melt(probs2)

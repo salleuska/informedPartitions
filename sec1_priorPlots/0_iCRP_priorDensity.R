@@ -81,6 +81,8 @@ partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
 colnames(probabilities) <- partVec
 rownames(probabilities) <- alphaMat[,1]
 
+saveRDS(probabilities, file = "iCRP_partitionProbs.rds")
+
 probs <- t(probabilities[-which(colnames(probabilities) == "11222"), ])
 
 probsDF <- melt(probs)
@@ -114,17 +116,18 @@ nVals <- 11
 alphaMat <- matrix(NA, nrow = nVals, ncol = length(FirstPart))
 alphaMat[, 3:5] <- seq(0, 1, length = nVals)
 
-# computedProbs <- list()
-# for(i in 1:length(fixedAlphaVals)) {
-# 	alphaMat[, 1:2] <- fixedAlphaVals[i]
+computedProbs <- list()
+for(i in 1:length(fixedAlphaVals)) {
+	alphaMat[, 1:2] <- fixedAlphaVals[i]
 
-# 	computedProbs[[i]] <- apply(partMat, 1,  function(x) apply(alphaMat, 1, function(y) dIDP(x, part0 = FirstPart, concentration = M, alpha = y)))
+	computedProbs[[i]] <- apply(partMat, 1,  function(x) apply(alphaMat, 1, function(y) dIDP(x, part0 = FirstPart, concentration = M, alpha = y)))
 
-# } 
-# names(computedProbs) <- fixedAlphaVals
+}
+names(computedProbs) <- fixedAlphaVals
+
+## saving to avoid re-computing
 # saveRDS(computedProbs, file = "partialProbs.rds")
-
-computedProbs	<- readRDS("partialProbs.rds")
+# computedProbs	<- readRDS("partialProbs.rds")
 ########
 ## Settings 
 c0 = FirstPart
@@ -151,17 +154,19 @@ for(i in 1:length(fixedAlphaVals)){
 
 	g <- grouping(nBlocks[indBiggestBlock])
 
+	
 	p <- ggplot(df, aes(x = Var2, y = value)) + 
 	geom_area(aes(group = Var1, fill = factor(isC0)),col = "grey20" ) +
 	scale_fill_manual(values = c('grey90',highlightColor))+
 	theme_bw(18) + scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) + 
-	scale_x_continuous(breaks = 1:11, labels = c(0, rep("", 4), 0.5, rep("", 4), 1),  expand = c(0, 0))+
+	scale_x_continuous(breaks = 1:length(seq(0, 1, length = nVals)),labels = seq(0, 1, length = nVals), expand = c(0, 0))+
+	  #	scale_x_continuous(breaks = 1:11, labels = c(0, rep("", 4), 0.5, rep("", 4), 1),  expand = c(0, 0))+
 		theme(legend.position = 'none',  plot.margin=grid::unit(c(1,1,1,1), "cm")) + 
 		#theme(plot.margin=grid::unit(c(1,1,1,1), "cm"))
 	theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
 		  axis.title.y.left = element_blank(), axis.text.y.left = element_blank(), 
-	      axis.ticks.y.left = element_blank(),
-	      axis.ticks.length.y.left  = unit(2, "cm"),
+		  axis.ticks.y.left = element_line(linewidth = 0.6, colour = "grey20", linetype = "dotted"),
+		  axis.ticks.length.y.left  = unit(2, "cm"),
 	      axis.ticks.length.x.bottom  = unit(2, "cm"),
 	      axis.text.y.right = element_text( size = rel(1.6)),
 	      axis.ticks.x = element_blank(),
@@ -170,15 +175,35 @@ for(i in 1:length(fixedAlphaVals)){
 	       axis.title.y.right=element_text(size=20)
 	      ) + xlab(TeX(xLabel))	
 	
-	title <- paste0("$\\alpha_{1} = \\alpha_{2} = ", fixedAlphaVals[i], "\\; \\alpha_{3} = \\alpha_{4} = \\alpha_{5} = \\alpha$")
-
-	plotList[[i]] <- p+  theme(plot.title = element_text(hjust = 0.5)) + ggtitle(TeX(title))
-
-}
+	  title <- paste0("iCRP with $\\alpha_{1} = \\alpha_{2} = ", fixedAlphaVals[i], "\\; \\alpha_{3} = \\alpha_{4} = \\alpha_{5} = \\alpha$")
 	
-library(cowplot)
-plotToSave <-  plot_grid(plotlist = plotList, nrow = 1)
+  p  <- p+  theme(plot.title = element_text(hjust = 0.5)) + ggtitle(TeX(title))
+	
+	  p <- p + scale_y_continuous(breaks= res$yTicks, limits = c(0, 1), expand = c(0, 0),
+	                                        sec.axis = sec_axis(trans = ~., name = "Cumulative probability", breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
+	                                                            labels = c("0.0", "0.2", "0.4", "0.6", "0.8", "1.0"))) 
+	
+	  p <- p + annotation_custom(grob = textGrob(label = "1 block", hjust = 0, gp = gpar(cex =0.9)), ymin = res$yTicks[1] + 0.02,ymax = res$yTicks[1] + 0.02,  xmin = -0.5,xmax = 0.5) +
+	  annotation_custom(grob = textGrob(label = "2 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = res$yTicks[2] + 0.02, ymax = res$yTicks[2] + 0.02,  xmin = -0.5,xmax = 0.5) +
+	  annotation_custom(grob = textGrob(label = "3 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = res$yTicks[3] + 0.02,ymax = res$yTicks[3] + 0.02, xmin = -0.5,xmax = 0.5) +
+	  annotation_custom(grob = textGrob(label = "4 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = res$yTicks[4] + 0.02 ,ymax = res$yTicks[4] + 0.02,  xmin = -0.5,xmax = 0.5) +
+	  annotation_custom(grob = textGrob(label = "5 blocks", hjust = 0, gp = gpar(cex =0.9)), ymin = res$yTicks[5] + 0.02,ymax = res$yTicks[5] + 0.02,  xmin = -0.5,xmax = 0.5)
+	
+	
+	gt <- ggplot_gtable(ggplot_build(p))
+	gt$layout$clip[gt$layout$name == "panel"] <- "off"
+	grid_p = grid.arrange(gt)
 
-ggsave(plotToSave, file = paste0("figures/iCRP_partial.pdf"), 
-		device = "pdf", height = 15, width = 75, unit = "cm", dpi = 300) 
-
+	
+	# plotRes
+	ggsave(grid_p, file = paste0("figures/figApp_iCRP_fixed_", fixedAlphaVals[i], ".pdf"), 
+	       device = "pdf", height = 20, width = 22, unit = "cm", dpi = 300) 
+	
+}
+# 	
+# library(cowplot)
+# plotToSave <-  plot_grid(plotlist = plotList, nrow = 1)
+# 
+# ggsave(plotToSave, file = paste0("figures/iCRP_partial.pdf"), 
+# 		device = "pdf", height = 15, width = 75, unit = "cm", dpi = 300) 
+# 
