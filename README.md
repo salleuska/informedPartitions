@@ -19,6 +19,8 @@ install.packages("ggplot2")
 install.packages("grid")
 install.packages("gridExtra")
 install.packages("betafunctions")
+install.packages("latex2exp")
+
 
 #install.packages("bayestestR")
 #install.packages("cowplot")
