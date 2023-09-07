@@ -12,6 +12,11 @@ require(gridExtra)
 source("iCRP_densityFunction.R")
 source("makeBasePartitionPlot.R")
 ####################################
+## create figures and output directory if missing
+dir.create(file.path("output"), recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path("figures"), recursive = TRUE, showWarnings = FALSE)
+####################################
+
 ## values of alpha parameter
 alphaVec <- seq(0, 1, length = 11)
 ####################################
@@ -81,7 +86,7 @@ partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
 colnames(probabilities) <- partVec
 rownames(probabilities) <- alphaMat[,1]
 
-saveRDS(probabilities, file = "iCRP_partitionProbs.rds")
+saveRDS(probabilities, file = "output/iCRP_partitionProbs.rds")
 
 probs <- t(probabilities[-which(colnames(probabilities) == "11222"), ])
 

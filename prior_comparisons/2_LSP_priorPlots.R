@@ -3,7 +3,7 @@
 ## 2023/14/03 
 #################
 ## This script produces a density plot over the set partition space of 5 elements
-## for the LSP model (smith and allenby 2021)
+## for the LSP model - Smith and Allenby (2021)
 #################
 library(Rcpp)
 library(RcppArmadillo)
@@ -13,11 +13,14 @@ library(reshape2)
 library(CPLogit)
 require(grid)
 require(gridExtra)
-
 ## original
 # sourceCpp("dmrpfunctions.cpp")
 sourceCpp("LSP/dmrpfunctions.cpp")
 source("makeBasePartitionPlot.R")
+####################################
+## create figures and output directory if missing
+dir.create(file.path("output"), recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path("figures"), recursive = TRUE, showWarnings = FALSE)
 ####################################
 ## values of the scale parameter tau
 tauVec <- seq(3, 0, length =11)
@@ -90,7 +93,7 @@ partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
 colnames(probs) <- tauVec
 rownames(probs) <- partVec
 
-saveRDS(probs, file = "LSP_partitionProbs.rds")
+saveRDS(probs, file = "output/LSP_partitionProbs.rds")
 
 probs2 <- probs[-which(rownames(probs) == "11222"), ]
 

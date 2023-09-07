@@ -11,6 +11,10 @@ library(grid)
 library(reshape2)
 library(gridExtra)
 ####################
+## create figures and output directory if missing
+dir.create(file.path("output"), recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path("figures"), recursive = TRUE, showWarnings = FALSE)
+####################
 # Bell numbers - sequence A000110
 bell_n <- c(1, 2, 5, 15, 52, 203, 877, 4140, 21147, 115975, 678570, 4213597, 27644437, 190899322, 1382958545, 10480142147, 82864869804)
 ####################
