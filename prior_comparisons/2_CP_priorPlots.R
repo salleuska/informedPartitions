@@ -203,7 +203,7 @@ partVec <- apply(partMat, 1, function(x)  paste0(x, collapse = ""))
 colnames(partitionProbs) <- psiVal
 rownames(partitionProbs) <- partVec
 
-saveRDS(partitionProbs, "CPP_partitionProbs.rds")
+saveRDS(partitionProbs, "output/CPP_partitionProbs.rds")
 probs <- partitionProbs[-which(rownames(partitionProbs) == "11222"), ]
 
 probsDF <- melt(probs)
