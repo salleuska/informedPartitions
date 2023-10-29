@@ -2,7 +2,6 @@
 
 install.packages("devtools")  ## to install packages from github
 
-install.packages("salso")
 
 ## packages for output processing and visualization
 install.packages("reshape2")
@@ -12,7 +11,9 @@ install.packages("gridExtra")
 install.packages("latex2exp")
 install.packages("fields")
 
-## to evaluate LSP prior
+## estimate partition
+install.packages("salso")
+## to use LSP distribution
 install.packages("Rcpp")
 install.packages("RcppArmadillo")
 ## to evaluate iCRP prior
