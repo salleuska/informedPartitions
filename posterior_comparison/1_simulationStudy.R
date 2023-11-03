@@ -23,9 +23,8 @@ source("utils/lpml.R")
 ## Using slurm to run each scenario separately 
 listScenari <- read.table(file = "simScenario.csv", header = T, sep = ",")
 task_id <- Sys.getenv("SLURM_ARRAY_TASK_ID")
-
 ###################################
-## TMP - test script ##
+## TMP - parameters to test script ##
 # task_id <- 5
 # niter <- 100
 # nburn <- 50
@@ -106,7 +105,8 @@ if(scenario$initialPartition=="true") {
 } else if(scenario$initialPartition=="merge") { 
   initialP <- rep(1:2, each=N/2) # 
 } else if(scenario$initialPartition=="split") { 
-  initialP <- rep(1:8, c(7, 18, 7, 18, 7, 18, 7, 18)) # 
+  initialP <- c(rep(1, 12), rep(2, 13), rep(3, 12), rep(4, 13),
+          rep(5, 12), rep(6, 13), rep(7, 12), rep(8, 13))
 } else {stop("option for initial partition not supported")}
 
 ## data structures for results
