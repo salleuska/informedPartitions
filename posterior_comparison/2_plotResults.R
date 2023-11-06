@@ -6,7 +6,7 @@ library(ggplot2)
 library(latex2exp)
 library(dplyr)
 library(purrr)
-library(mclust)   ## adjustedRandIndex
+## library(mclust)   ## adjustedRandIndex - not loaded because it masks purrr::map
 library(patchwork)
 ################################
 plotColors <- c("#F8766D", "#54B502", "#08B9EC")
@@ -44,7 +44,7 @@ splitP <-  c(rep(1, 12), rep(2, 13), rep(3, 12), rep(4, 13),
 	rep(5, 12), rep(6, 13), rep(7, 12), rep(8, 13))
 
 distFromTruePart <- data.frame(initialPartition = c("true", "merge", "split"), 
-							   dist = c(adjustedRandIndex(trueP, trueP), adjustedRandIndex(trueP, mergeP), adjustedRandIndex(trueP, splitP)))
+							   dist = c(mclust::adjustedRandIndex(trueP, trueP), mclust::adjustedRandIndex(trueP, mergeP), mclust::adjustedRandIndex(trueP, splitP)))
 
 distFromTruePart$initialPartition <- factor(distFromTruePart$initialPartition, labels = c(TeX("$\\rho_{0} = \\rho_{merge}$"), TeX("$\\rho_{0} = \\rho_{split}$"), TeX("$\\rho_{0} = \\rho_{true}$")))
 ################################
@@ -84,7 +84,7 @@ plotLSP <- ggplot(dfLSP, aes(y = value, x = variable, color = meanSep)) + geom_b
 
 p <- plotIP / plotCP / plotLSP 
 
-ggsave(filename = "figXX_simulationPost.pdf", plot = p, width = 11, height = 12.5) 
+ggsave(filename = "figXX_ARI_PostComparison.pdf", plot = p, width = 11, height = 12.5) 
 
 
 
