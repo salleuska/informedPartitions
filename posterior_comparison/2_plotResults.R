@@ -4,21 +4,21 @@
 library(reshape2)
 library(ggplot2)
 library(latex2exp)
-library(purrr)
 library(dplyr)
+library(purrr)
+library(mclust)   ## adjustedRandIndex
 library(patchwork)
 ################################
 plotColors <- c("#F8766D", "#54B502", "#08B9EC")
 ################################
-## create list with all the results
+## create a list with all the results
 resList <- list()
 for(i in 1:9) resList[[i]] <- readRDS(paste0("output/scenario_", i, ".rds"))
-
 ################################
-## function to extract results and output in long format
+## function to extract results and collect them in data frame with long format for plotting
 
 extractRes <- function(dataList, measureName) { 
-	tmp <-  map(resList, \(x) as.data.frame(x[[measureName]]) |> 
+	tmp <-  purrr::map(resList, \(x) as.data.frame(x[[measureName]]) |> 
 	 							mutate(meanSep = paste0("h = ", x$scenario$meanSep), 
 	 								   initialPartition = x$scenario$initialPartition)) |> bind_rows()
 	
@@ -30,23 +30,28 @@ extractRes <- function(dataList, measureName) {
 	tmplong
 }
 
-
-## set initial partition
-N = 100
-trueP <- rep(1:4, each=N/4)# 
-mergPe <- rep(1:2, each=N/2) # 
-
-splitP <- c(rep(1, 12), rep(2, 13), rep(3, 12), rep(4, 13),
-	        rep(5, 12), rep(6, 13), rep(7, 12), rep(8, 13))
-
+################################
 ## Create a dataframe containing results for each prior - ari from true partition
 dfIP  <- extractRes(resList, "ariTruePartIP")
 dfCP  <- extractRes(resList, "ariTruePartCP")
 dfLSP <- extractRes(resList, "ariTruePartLSP")
+################################
+## info about initial partitions
+N <- 100
+trueP  <-  rep(1:4, each=N/4) 
+mergeP <-  rep(1:2, each=N/2)
+splitP <-  c(rep(1, 12), rep(2, 13), rep(3, 12), rep(4, 13),
+	rep(5, 12), rep(6, 13), rep(7, 12), rep(8, 13))
 
+distFromTruePart <- data.frame(initialPartition = c("true", "merge", "split"), 
+							   dist = c(adjustedRandIndex(trueP, trueP), adjustedRandIndex(trueP, mergeP), adjustedRandIndex(trueP, splitP)))
+
+distFromTruePart$initialPartition <- factor(distFromTruePart$initialPartition, labels = c(TeX("$\\rho_{0} = \\rho_{merge}$"), TeX("$\\rho_{0} = \\rho_{split}$"), TeX("$\\rho_{0} = \\rho_{true}$")))
+################################
 
 
 plotIP <- ggplot(dfIP, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+	geom_hline(data =distFromTruePart, aes(yintercept = dist), linetype = "dashed") + 
 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 	scale_colour_manual(values = plotColors)  +
 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{true}$)")) + xlab(TeX("\\alpha")) + 
@@ -55,6 +60,7 @@ plotIP <- ggplot(dfIP, aes(y = value, x = variable, color = meanSep)) + geom_box
 plotIP 
 
 plotCP <- ggplot(dfCP, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+	geom_hline(data =distFromTruePart, aes(yintercept = dist), linetype = "dashed") + 
 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 	scale_colour_manual(values = plotColors)  +
 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{true}$)")) + xlab(TeX("\\psi")) + 
@@ -66,6 +72,7 @@ plotCP
 labelsLSP <- c(c(10, 5, 1, 0.05), TeX("\\frac{1}{mlog(m)}"), TeX("\\frac{0.1}{mlog(m)}"))
 
 plotLSP <- ggplot(dfLSP, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+	geom_hline(data =distFromTruePart, aes(yintercept = dist), linetype = "dashed") + 
 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 	scale_colour_manual(values = plotColors)  +
 	scale_x_discrete(labels= labelsLSP) + 
