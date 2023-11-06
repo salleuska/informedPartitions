@@ -54,7 +54,7 @@ plotIP <- ggplot(dfIP, aes(y = value, x = variable, color = meanSep)) + geom_box
 	geom_hline(data =distFromTruePart, aes(yintercept = dist), linetype = "dashed") + 
 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 	scale_colour_manual(values = plotColors)  +
-	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{true}$)")) + xlab(TeX("\\alpha")) + 
+	ylab(TeX("E(ARI($\\rho, \\rho_{true}$)| Y)")) + xlab(TeX("\\alpha")) + 
 	ggtitle("Informed Partition Model") + theme(legend.position = "none") 
 
 plotIP 
@@ -63,7 +63,7 @@ plotCP <- ggplot(dfCP, aes(y = value, x = variable, color = meanSep)) + geom_box
 	geom_hline(data =distFromTruePart, aes(yintercept = dist), linetype = "dashed") + 
 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 	scale_colour_manual(values = plotColors)  +
-	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{true}$)")) + xlab(TeX("\\psi")) + 
+	ylab(TeX("E(ARI($\\rho, \\rho_{true}$)| Y)"))  + xlab(TeX("\\psi")) + 
 	ggtitle("Centered Partition Process") + theme(legend.position = "none")
 
 plotCP 
@@ -76,7 +76,7 @@ plotLSP <- ggplot(dfLSP, aes(y = value, x = variable, color = meanSep)) + geom_b
 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 	scale_colour_manual(values = plotColors)  +
 	scale_x_discrete(labels= labelsLSP) + 
-	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{true}$)")) + xlab(TeX("\\tau")) + 
+	ylab(TeX("E(ARI($\\rho, \\rho_{true}$)| Y)"))  + xlab(TeX("\\nu")) + 
 	ggtitle("Location-Scale Partition Distribution") +
 	theme(legend.position = "bottom", legend.title = element_blank(),  
 		axis.text.x = element_text(angle = 0))
@@ -84,111 +84,70 @@ plotLSP <- ggplot(dfLSP, aes(y = value, x = variable, color = meanSep)) + geom_b
 
 p <- plotIP / plotCP / plotLSP 
 
-ggsave(filename = "figXX_ARI_PostComparison.pdf", plot = p, width = 11, height = 12.5) 
+ggsave(filename = "fig_ARI_PostComparison.pdf", plot = p, width = 11, height = 12.5) 
 
 
 
-# ## Create a dataframe containing results for each prior - ari from true partition
-# dfIP  <- extractRes(resList, "ariInitialPartIP")
-# dfCP  <- extractRes(resList, "ariInitialPartCP")
-# dfLSP <- extractRes(resList, "ariInitialPartLSP")
+# #############
+# ## Create a dataframe containing results for each prior - 
+# dfIPWaic  <- extractRes(resList, "waicIP")
+# dfCPWaic  <- extractRes(resList, "waicCP")
+# dfLSPWaic <- extractRes(resList, "waicLSP")
 
-# plotIP <- ggplot(dfIP, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+# dfIPlpml  <- extractRes(resList, "lmplIP")
+# dfCPlpml  <- extractRes(resList, "lmplCP")
+# dfLSPlpml <- extractRes(resList, "lmplLSP")
+
+# ################################
+# plotIPlpml <- ggplot(dfIPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
 # 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 # 	scale_colour_manual(values = plotColors)  +
-# 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{0}$)")) + xlab(TeX("\\alpha")) + 
+# 	ylab("LPML") + xlab(TeX("\\alpha")) + 
 # 	ggtitle("Informed Partition Model") + theme(legend.position = "none") 
 
-
-# plotCP <- ggplot(dfCP, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+# plotCPlpml<- ggplot(dfCPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
 # 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 # 	scale_colour_manual(values = plotColors)  +
-# 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{0}$)")) + xlab(TeX("\\psi")) + 
-# 	ggtitle("Centered Partition Process") + theme(legend.position = "none")
+# 	ylab("LPML") + xlab(TeX("\\alpha")) + 
+# 	ggtitle("Centered Partition Process") + theme(legend.position = "none") 
 
-
-# labelsLSP <- c(c(10, 5, 1, 0.05), TeX("\\frac{1}{mlog(m)}"), TeX("\\frac{0.1}{mlog(m)}"))
-
-# plotLSP <- ggplot(dfLSP, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+# plotLSPlpml <- ggplot(dfLSPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
 # 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
 # 	scale_colour_manual(values = plotColors)  +
 # 	scale_x_discrete(labels= labelsLSP) + 
-# 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{0}$)")) + xlab(TeX("\\tau")) + 
+# 	ylab(TeX("LPML"))  + xlab(TeX("\\nu")) + 
 # 	ggtitle("Location-Scale Partition Distribution") +
 # 	theme(legend.position = "bottom", legend.title = element_blank(),  
 # 		axis.text.x = element_text(angle = 0))
 
+# plpml <- plotIPlpml / plotCPlpml / plotLSPlpml 
+# ggsave(filename = "fig_LPML_postComp.pdf", plot = plpml, width = 11, height = 12.5) 
 
-# p <- plotIP / plotCP / plotLSP 
-# ggsave(filename = "figXX_initialPArt.pdf", plot = p, width = 11, height = 12.5) 
+# ###
 
-# ###########
-
-# for(i in 1:9) {
-# 	dfIPtmp <- as.data.frame(resList[[i]]$ariTruePartIP)
-# 	dfIPtmp$meanSep <- paste0("mean separation = ", resList[[i]]$scenario$meanSep)
-# 	dfIPtmp$initialPartition <- paste0("initial partition = ", resList[[i]]$scenario$initialPartition)
-# 	dfIPlong <- melt(dfIPtmp, id.vars = c("initialPartition", "meanSep"))
-# 	dfIP1 <-rbind(dfIP1, dfIPlong)
-
-# }
-
-# # labels <- c(TeX("initial partition = $\\rho_{merge}$" ), 
-# # TeX("initial partition = $\\rho_{split}$" ), 
-# # TeX("initial partition = $\\rho_{truth}$" ))
-# # dfIP1$initialPartition <- factor(dfIP1$initialPartition, labels = labels)
-
-# p1 <- ggplot(dfIP1, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
-# 	facet_grid(.~ initialPartition) + 
-# 	scale_colour_manual(values = c(2,3,4)) +
-# 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{0}$)")) + xlab(TeX("\\alpha")) + ggtitle("informed partition") + theme(legend.position = "none")
-# p1
-
-
-
-# ggsave(filename = "figXX_simulationIP.pdf", plot = p1, width = 11, height = 4)
-
-# dfCP1 <- data.frame()
-
-# for(i in 1:9) {
-# 	dfCP <- as.data.frame(resList[[i]]$ariTruePartCP)
-# 	dfCP$meanSep <- paste0("mean separation = ", resList[[i]]$scenario$meanSep)
-# 	dfCP$initialPartition <- paste0("initial partition = ", resList[[i]]$scenario$initialPartition)
-# 	dfCPlong <- melt(dfCP, id.vars = c("initialPartition", "meanSep"))
-# 	dfCP1 <-rbind(dfCP1, dfCPlong)
-# }
-
-# p2<- ggplot(dfCP1, aes(y = value, x = variable,  color = meanSep)) + geom_boxplot() + theme_bw() +
-# 	facet_grid(.~ initialPartition ) + 
-# 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{0}$)")) + xlab(TeX("\\psi")) + ggtitle("centered partition process") + theme(legend.position = "bottom")
-
-# p2
-
-# ggsave(filename = "figXX_simulationCP.pdf", plot = p2, width = 11, height = 4.5) 
-
-
-
-# dfLSP <- data.frame()
-# for(i in 1:9) {
-# 	dfLSPtmp <- as.data.frame(resList[[i]]$ariTruePartLSP)
-# 	dfLSPtmp$meanSep <- paste0("h = ", resList[[i]]$scenario$meanSep)
-# 	dfLSPtmp$initialPartition <- paste0("initial partition = ", resList[[i]]$scenario$initialPartition)
-# 	dfLSPlong <- melt(dfLSPtmp, id.vars = c("initialPartition", "meanSep"))
-# 	dfLSP <-rbind(dfLSP, dfLSPlong)
-# }
-
-# dfLSP$initialPartition<- as.factor(dfLSP$initialPartition)
-
-# levels(dfLSP$initialPartition) <- c(TeX("$\\rho_{0} = \\rho_{merge}$"), TeX("$\\rho_{0} = \\rho_{split}$"), TeX("$\\rho_{0} = \\rho_{true}$"))
-
-# dfLSP$initialPartition<- factor(dfLSP$initialPartition, levels = levels(dfLSP$initialPartition)[c(3,1,2)] )
-
-# p3 <- ggplot(dfLSP, aes(y = value, x = variable,  color = meanSep)) + geom_boxplot() + theme_bw() +
+# plotIPWaic <- ggplot(dfIPWaic, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
 # 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
-# 	ylab(TeX("ARI($\\hat{\\rho}, \\rho_{0}$)")) + xlab(TeX("\\tau")) + ggtitle("LSP prior") + theme(legend.position = "bottom", legend.title = element_blank())
-# p3
+# 	scale_colour_manual(values = plotColors)  +
+# 	ylab("WAIC") + xlab(TeX("\\alpha")) + 
+# 	ggtitle("Informed Partition Model") + theme(legend.position = "none") 
 
 
-# # resList[[1]]$ariInitialPartCP
+# plotCPWaic<- ggplot(dfCPWaic, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+# 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
+# 	scale_colour_manual(values = plotColors)  +
+# 	ylab("WAIC") + xlab(TeX("\\alpha")) + 
+# 	ggtitle("Centered Partition Process") + theme(legend.position = "none") 
 
-# # plot(res$ariInitialPartIP[, 1], res$ariInitialPartCP[, 1])
+# plotLSPWaic <- ggplot(dfLSPWaic, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+# 	facet_grid(.~ initialPartition) + 
+# 	scale_colour_manual(values = plotColors)  +
+# 	scale_x_discrete(labels= labelsLSP) + 
+# 	ylab(TeX("WAIC"))  + xlab(TeX("\\nu")) + 
+# 	ggtitle("Location-Scale Partition Distribution") +
+# 	theme(legend.position = "bottom", legend.title = element_blank(),  
+# 		axis.text.x = element_text(angle = 0))
+
+# pWaic <- plotIPWaic / plotCPWaic / plotLSPWaic 
+
+
+# ggsave(filename = "fig_WAIC_postComp.pdf", plot = pWaic, width = 11, height = 12.5) 
