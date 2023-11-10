@@ -89,36 +89,35 @@ ggsave(filename = "fig_ARI_PostComparison.pdf", plot = p, width = 11, height = 1
 
 
 # #############
-# ## Create a dataframe containing results for each prior - 
-# dfIPWaic  <- extractRes(resList, "waicIP")
-# dfCPWaic  <- extractRes(resList, "waicCP")
-# dfLSPWaic <- extractRes(resList, "waicLSP")
+## Create a dataframe containing results for each prior - 
+dfIPWaic  <- extractRes(resList, "waicIP")
+dfCPWaic  <- extractRes(resList, "waicCP")
 
-# dfIPlpml  <- extractRes(resList, "lmplIP")
-# dfCPlpml  <- extractRes(resList, "lmplCP")
-# dfLSPlpml <- extractRes(resList, "lmplLSP")
+dfIPlpml  <- extractRes(resList, "lmplIP")
+dfCPlpml  <- extractRes(resList, "lmplCP")
+dfLSPlpml <- extractRes(resList, "lmplLSP")
 
-# ################################
-# plotIPlpml <- ggplot(dfIPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
-# 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
-# 	scale_colour_manual(values = plotColors)  +
-# 	ylab("LPML") + xlab(TeX("\\alpha")) + 
-# 	ggtitle("Informed Partition Model") + theme(legend.position = "none") 
+################################
+plotIPlpml <- ggplot(dfIPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+	facet_grid(.~ initialPartition, labeller=label_parsed) + 
+	scale_colour_manual(values = plotColors)  +
+	ylab("LPML") + xlab(TeX("\\alpha")) + 
+	ggtitle("Informed Partition Model") + theme(legend.position = "none") 
 
-# plotCPlpml<- ggplot(dfCPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
-# 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
-# 	scale_colour_manual(values = plotColors)  +
-# 	ylab("LPML") + xlab(TeX("\\alpha")) + 
-# 	ggtitle("Centered Partition Process") + theme(legend.position = "none") 
+plotCPlpml<- ggplot(dfCPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+	facet_grid(.~ initialPartition, labeller=label_parsed) + 
+	scale_colour_manual(values = plotColors)  +
+	ylab("LPML") + xlab(TeX("\\alpha")) + 
+	ggtitle("Centered Partition Process") + theme(legend.position = "none") 
 
-# plotLSPlpml <- ggplot(dfLSPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
-# 	facet_grid(.~ initialPartition, labeller=label_parsed) + 
-# 	scale_colour_manual(values = plotColors)  +
-# 	scale_x_discrete(labels= labelsLSP) + 
-# 	ylab(TeX("LPML"))  + xlab(TeX("\\nu")) + 
-# 	ggtitle("Location-Scale Partition Distribution") +
-# 	theme(legend.position = "bottom", legend.title = element_blank(),  
-# 		axis.text.x = element_text(angle = 0))
+plotLSPlpml <- ggplot(dfLSPlpml, aes(y = value, x = variable, color = meanSep)) + geom_boxplot() + theme_bw() +
+	facet_grid(.~ initialPartition, labeller=label_parsed) + 
+	scale_colour_manual(values = plotColors)  +
+	scale_x_discrete(labels= labelsLSP) + 
+	ylab(TeX("LPML"))  + xlab(TeX("\\nu")) + 
+	ggtitle("Location-Scale Partition Distribution") +
+	theme(legend.position = "bottom", legend.title = element_blank(),  
+		axis.text.x = element_text(angle = 0))
 
 # plpml <- plotIPlpml / plotCPlpml / plotLSPlpml 
 # ggsave(filename = "fig_LPML_postComp.pdf", plot = plpml, width = 11, height = 12.5) 
