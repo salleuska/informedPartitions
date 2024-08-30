@@ -268,29 +268,25 @@ for(ii in 1:ndata){
     ariInitialPartLSP[ii,j] <- mean(apply(ariMatInitialLSP,2,mean))
     ariTruePartLSP[ii,j] <- mean(apply(ariMatTrueLSP,2,mean))
 
-    ## GoF for IP prior
-    lmplIP[ii, j] <- drpm1$lpml
-    waicIP[ii, j] <- drpm1$waic
 
    ## GoF for IP prior
     tmpIP <- dnorm(Ymat, drpm1$mu[1,,], sd = 1, log = T)
-    gofIP <- lpml.robust(tmpIP)
+    gofIP <- lpml.robust(t(tmpIP))
     lmplIP[ii, j] <- gofIP["lpml"]
     waicIP[ii, j] <- gofIP["waic"]
 
 
     ## GoF for CP prior
     tmpCP <- dnorm(Ymat, muSamp, sd = 1, log = T)
-    gofCP <- lpml.robust(tmpCP)
+    gofCP <- lpml.robust(t(tmpCP))
     lmplCP[ii, j] <- gofCP["lpml"]
     waicCP[ii, j] <- gofCP["waic"]
 
     ## GoF for LSP prior
-    tmpLSP <- dnorm(Ymat, muSampLSP, sd = 1, log = T)
-    gofLSP <- lpml.robust(tmpLSP)
+    tmpLSP <- dnorm(Ymat, t(muSampLSP), sd = 1, log = T)
+    gofLSP <- lpml.robust(t(tmpLSP))
     lmplLSP[ii, j] <- gofLSP["lpml"]
     waicLSP[ii, j] <- gofLSP["waic"]
-  
 
   }
 }
@@ -303,7 +299,7 @@ saveRDS(list(ariInitialPartIP = ariInitialPartIP,
              ariInitialPartLSP = ariInitialPartLSP,
              ariTruePartLSP = ariTruePartLSP,
              waicIP = waicIP, waicCP = waicCP, 
-             lmplIP = lmplIP, lmplCP = lmplIP, 
+             lmplIP = lmplIP, lmplCP = lmplCP, 
              waicLSP = waicLSP, lmplLSP = lmplLSP,
              scenario = scenario), paste0("output/scenario_",task_id, ".rds"))
 
