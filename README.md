@@ -1,6 +1,8 @@
 # informedPartitions
 
-[Draft] Supplementary code for informed partition paper
+[Draft] Supplementary code for the paper "Informed Random Partition Models with Temporal Dependence"  
+Sally Paganin, Garritt L. Page, Fernando Andrés Quintana  
+arxiv: [https://arxiv.org/abs/2311.14502](https://arxiv.org/abs/2311.14502)
 
 -----------------------------------------
 
