@@ -48,7 +48,7 @@ FirstPart= rep(c(1,2,3,4), each = 5)
 alpha <- rep(c(0.25, 0.5, 0.75 ,0.95), each = 5)
 nsim <- 5000
 clusterSpecific <- FALSE
-source("0_priorSimulationR.R")
+source("0_priorSimulation.R")
 
 ##################
 ## Simulation 3 
