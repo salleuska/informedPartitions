@@ -14,7 +14,7 @@
 # rtpartition(N, M, alpha, ntime, FirstPart )
 
 isScalar <- function(x) is.atomic(x) && length(x) == 1L
-isVector <- function(x) is.atomic(x) && length(x) > 1L
+isVector <- function(x) is.atomic(x) && is.vector(x) 
 	
 rtpartition <- function(N, M ,alpha,ntime, FirstPart=NULL, 
 	clusterSpecific = FALSE){
@@ -153,59 +153,65 @@ rtpartition <- function(N, M ,alpha,ntime, FirstPart=NULL,
 	out
 }
 
+####################################################
 ## Generate partitions usign latent autoregressive 
 ## process for the alphas 
+####################################################
+# N <- 3;M <- 1;ntime <- 10;FirstPart=c(1,2,1)
+# alpha <-  matrix(0.1, N, ntime)
+# rtpartition(N, M, alpha, ntime, FirstPart )
 
+# phi_sd = 1
+# kappaMin = 0.01
+# kappaMax = 0.5
+# zet0 <- 3
 
-phi_sd = 1
-kappaMin = 0.01
-kappaMax = 1
+# rtpartition_AR(N = N, M = M, ntime = ntime, FirstPart = FirstPart, 
+# 	kappa = 0.5, phi = 1, zeta0 = 3)
 
 rtpartition_AR <- function(N, M, ntime, 
-	## priors hyperameters
-	phi_sd = 1, 
-	kappaMin = 0.01, 
-	kappaMax = 1,
+	## first partition
 	FirstPart=NULL, 
-	zeta0, 
-	clusterSpecific = FALSE){
+	## first coeff
+	zeta0,
+	kappa = 0.5, 
+	phi = 1,  
+	## priors hyperameters	
+	clusterSpecific = FALSE,
+	hyperpriors = FALSE, 
+	hyperparameters = NULL){
+
 	library(plyr)
 	out <- NULL
 
+    ## hyperprior parameters in case I want to add a layer of simulation
 	if(isScalar(zeta0)){
 		message("using same zeta0 for each observation")
 		zeta0 <- rep(zeta0, N)
 	}
+	## initialize matrices
 	alphaMat <- matrix(NA, nrow = N, ncol = ntime)
 	zetaMat <- matrix(NA, nrow = N, ncol = ntime)
-	kappas <- runif(N, min = kappaMin, max = kappaMax)
-	phi    <- rnorm(N, mean = 0, sd = phi_sd)
-
 	epsilon <- matrix(NA, nrow = N, ncol = ntime)
+
+	if(hyperpriors) {
+		hyperparameters$phi_sd <-  1
+		hyperparameters$kappaMin <-  0.01
+		hyperparameters$kappaMax <-  1
+		kappas <- runif(N, min = kappaMin, max = kappaMax)
+		phi    <- rnorm(N, mean = 0, sd = phi_sd)
+	} else {
+		kappas <- rep(kappa, N) 
+		phi    <- rep(phi, N)
+
+	}
+
 	zetaMat[, 1] <- phi * zeta0 + rnorm(N, mean = 0, sd = kappas)
 	alphaMat[, 1] <- expit(zetaMat[,1])
 	for(t in 2:ntime) {
 		zetaMat[, t] <-  phi * zetaMat[, t -1] +  rnorm(N, mean = 0, sd = kappas)
 		alphaMat[, t] <- expit(zetaMat[, t])
 	}
-
-
-	# if(isScalar(alpha)){
-	# 	message("using same alpha for each observation over time")
-	# 	alphaMat <- matrix(alpha, nrow = N, ncol = ntime)
-	# } else if(isVector(alpha)) {
-	# 	message("using constant alpha across time")
-	# 	alphaMat <- matrix(rep(alpha, ntime), nrow = N, ncol = ntime)
-	# } else if(is.matrix(alpha)){
-	# 	if(clusterSpecific){
-	# 		## if not using the cluster dependent probability
-	# 		## then behave as the DP 
-	# 		alphaMat <- matrix(0, nrow = N, ncol = ntime)
-	# 		alphaMat[1:dim(alpha)[1], 1:dim(alpha)[2]] <- alpha
-	# 	} else{
-	# 		alphaMat <- alpha
-	# 	}
-	# }
 
 	## initialize clustering with a given partition
 	clustering <- FirstPart

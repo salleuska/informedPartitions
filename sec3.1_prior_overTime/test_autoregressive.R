@@ -19,7 +19,7 @@ N <- 3;M <- 1;ntime <- 10;FirstPart=c(1,2,1)
 ## Generate a sequence of alphas (one individual - ntime points)
 
 rep <- 1000
-zeta0 <- 3
+zeta0 <- -3
 
 alpha <- numeric(ntime)
 zeta  <- numeric(ntime)
@@ -32,7 +32,7 @@ for(i in 1:rep){
 	kappa  <- runif(1, min = 0, max = 0.5)
 	phi     <- rnorm(1, mean = 0, sd = 1)
 
-	epsilon <- rnorm(ntime, mean = 0, sd = kappa2)
+	epsilon <- rnorm(ntime, mean = 0, sd = kappa)
 	zeta[1] <- phi * zeta0 + epsilon[1]
 	alpha[1] <- expit(zeta[1])
 	for(t in 2:ntime) {
@@ -43,14 +43,7 @@ for(i in 1:rep){
 	alphaTest[i, ] <- alpha
 
 }
-hist(alphaTest[, 6])
+hist(alphaTest[, 6], xlim = c(0, 1))
 
 ######################
 
-## zeta_1 = phi x zeta_0 + eps --- eps ~ N(0, kappa2)
-kappa2 <- numeric(N)
-phi    <- numeric(N)
-
-
-
-alpha1 <- expit(zeta0)
