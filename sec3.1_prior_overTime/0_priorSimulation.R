@@ -1,11 +1,27 @@
 library(mclust) ## adjustedRandIndex
 library(mcclust) ## for variation of information
 library(salso) ## for psm - pairwise similarity matrix
-
+###############################
+## Source useful functions
+###############################
+## function that simulate random partitions from the informed partition model
 source("utils/randomPartitionGenerator.R")
+## F1 distances 
 source("utils/F1Distance.R")
+###############################
+## checks
 
-# cSimulatePartition(N, M, alpha, ntime, FirstPart)
+if(!exists("name")) stop("Provide name output file \n")
+
+if(!exists("seedNumber")) {
+	seedNumber <- 34
+	cat("Using seedNumber ", 34, "\n" )
+}
+set.seed(seedNumber)
+
+###############################
+
+
 ARIout <- list()
 VIout <- list()
 F1out <- list()
@@ -14,10 +30,19 @@ ARItmp <- VItmp <- F1tmp <- matrix(NA, ntime, ntime)
 ARIFirstout<- VIFirstout <- F1Firstout <- matrix(NA, ntime, nsim)
 pairWise <- array(NA, dim = c(N, N, ntime, nsim))
 
-set.seed(34)
 for(ii in 1:nsim){
 	if(ii %% 1000 == 0) cat("ii = ", ii, "\n")
-	partList <- rtpartition(N=N,M=M,alpha=alpha,ntime=ntime, FirstPart=FirstPart, clusterSpecific = clusterSpecific)
+	
+	if(autoregressive) {
+	## Option for autoregressive model
+		partList <- rtpartition_AR(N = N, M = M, ntime = ntime, 
+			FirstPart = FirstPart, 
+			kappa = kappa, phi = phi, zeta0 = zeta0 )
+		
+	} else {
+		partList <- rtpartition(N=N,M=M,alpha=alpha,ntime=ntime, 
+			FirstPart=FirstPart, clusterSpecific = clusterSpecific)		
+	}
 	
 	for(j in 1:ntime){
 		## pairwise allocation probabilities
@@ -39,7 +64,16 @@ for(ii in 1:nsim){
 }
 
 
-settings <- list(alpha = alpha, FirstPart = FirstPart, M = M, N = N, ntime = ntime)
+if(autoregressive) {
+## Option for autoregressive model
+	settings <- list(kappa = kappa, phi = phi, zeta0 = zeta0, 
+		FirstPart = FirstPart, M = M, N = N, ntime = ntime)
+	
+} else {
+	settings <- list(alpha = alpha, FirstPart = FirstPart, M = M, N = N, ntime = ntime)
+}
+
+
 toSave <- list(name = name, 
 				settings = settings, 
 				pairWise = pairWise, 
@@ -48,6 +82,7 @@ toSave <- list(name = name,
 				  F1out = F1out,
 				  ARIFirstout = ARIFirstout, 
 				  VIFirstout = VIFirstout, 
-				  F1Firstout = F1Firstout)
+				  F1Firstout = F1Firstout, 
+				  seedNumber = seedNumber)
 
 saveRDS(toSave, file = paste0("results/samples_", name, ".rds"))

@@ -1,6 +1,6 @@
 ####################
 ## Function to simulate partitions with dependence 
-## sover time from the prior distribution
+## over time from the prior distribution
 ####################
 ## N - number of experimental units
 ## M - DP scale (dispersion) parameter
@@ -13,19 +13,24 @@
 # alpha <-  matrix(0.1, ntime, N)
 # rtpartition(N, M, alpha, ntime, FirstPart )
 
+####################
 isScalar <- function(x) is.atomic(x) && length(x) == 1L
 isVector <- function(x) is.atomic(x) && is.vector(x) 
 	
+logit <- function(x) log(x/(1 - x))
+expit <- function(x) exp(x)/(1 + exp(x))
+####################
+
 rtpartition <- function(N, M ,alpha,ntime, FirstPart=NULL, 
-	clusterSpecific = FALSE){
+	clusterSpecific = FALSE, model = "markovian"){
 	library(plyr)
 	out <- NULL
 
 	if(isScalar(alpha)){
-		message("using same alpha for each observation over time")
+#		message("using same alpha for each observation over time")
 		alphaMat <- matrix(alpha, nrow = N, ncol = ntime)
 	} else if(isVector(alpha)) {
-		message("using constant alpha across time")
+#		message("using constant alpha over time")
 		alphaMat <- matrix(rep(alpha, ntime), nrow = N, ncol = ntime)
 	} else if(is.matrix(alpha)){
 		if(clusterSpecific){
@@ -142,7 +147,10 @@ rtpartition <- function(N, M ,alpha,ntime, FirstPart=NULL,
 
 #			print(clusteringtmp)
 			clusteringMat[t,] <- as.numeric(as.character(clusteringtmp))
-#			print(clusteringMat)
+#			print(clusteringMat)		    
+		    if(model=="markovian") clustering <- as.numeric(as.character(clusteringtmp))
+		    if(model=="independent") clustering <- FirstPart
+
 
 		}
 		
@@ -159,15 +167,9 @@ rtpartition <- function(N, M ,alpha,ntime, FirstPart=NULL,
 ####################################################
 # N <- 3;M <- 1;ntime <- 10;FirstPart=c(1,2,1)
 # alpha <-  matrix(0.1, N, ntime)
-# rtpartition(N, M, alpha, ntime, FirstPart )
-
-# phi_sd = 1
-# kappaMin = 0.01
-# kappaMax = 0.5
-# zet0 <- 3
 
 # rtpartition_AR(N = N, M = M, ntime = ntime, FirstPart = FirstPart, 
-# 	kappa = 0.5, phi = 1, zeta0 = 3)
+# 	kappa = 0.5, phi = 1.5, zeta0 = zeta0 )
 
 rtpartition_AR <- function(N, M, ntime, 
 	## first partition
@@ -203,7 +205,6 @@ rtpartition_AR <- function(N, M, ntime,
 	} else {
 		kappas <- rep(kappa, N) 
 		phi    <- rep(phi, N)
-
 	}
 
 	zetaMat[, 1] <- phi * zeta0 + rnorm(N, mean = 0, sd = kappas)
@@ -239,7 +240,6 @@ rtpartition_AR <- function(N, M, ntime,
 #	plot(1:N, clustering, col=clustering, pch=19, cex=1.25)
 
 	# Now to generate ntime-1=9 more partitions that are temporally dependent
-	# Will first try uniform deletion
 	
 	clusteringMat <- matrix(NA, nrow=ntime, ncol=N) ## matrix of partition sequences
 	clusteringMat[1,]  <- clustering
@@ -319,10 +319,12 @@ rtpartition_AR <- function(N, M, ntime,
 			clusteringMat[t,] <- as.numeric(as.character(clusteringtmp))
 #			print(clusteringMat)
 
+
 		}
 		
 	}
 	
+	out$alphaMat <- alphaMat
 	out$ciMat <- clusteringMat
 	out$gMat <- gMat
 	out

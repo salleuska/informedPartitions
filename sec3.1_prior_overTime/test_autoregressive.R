@@ -46,4 +46,60 @@ for(i in 1:rep){
 hist(alphaTest[, 6], xlim = c(0, 1))
 
 ######################
+## Test autoregressive partition generator
+
+library(mclust) ## adjustedRandIndex
+library(mcclust) ## for variation of information
+library(salso) ## for psm - pairwise similarity matrix
+###############################
+## Source useful functions
+###############################
+## function that simulate random partitions from the informed partition model
+source("utils/randomPartitionGenerator.R")
+## F1 distances 
+source("utils/F1Distance.R")
+###############################
+## checks
+
+# n of units to partition
+N <- 20;
+## DP concentration parameter
+M <- 1;
+## time
+ntime <- 10;
+## Centering partition
+
+FirstPart= rep(c(1,2,3,4), each = 5)
+zeta0 <- rep(c(-2.5, -1, 1, 2.5), each = 5)
+## stationary process phi in (-1, 1)
+## small variance (sd = 0.5)
+phi <- -0.5
+kappa <- 0.5
+
+nsim <- 5000
+clusterSpecific <- FALSE
+autoregressive <- TRUE
+
+set.seed(32)
+
+partList <- rtpartition_AR(N = N, M = M, ntime = ntime, 
+	FirstPart = FirstPart, 
+	kappa = kappa, phi = phi, zeta0 = zeta0 )
+
+
+library(ggplot2)
+library(tidyr)
+
+df <- gather(data.frame(rn = 1:10, t(partList$alphaMat)), key, value, -rn, convert = TRUE) 
+df <- df |> filter(key %in% c("X1", "X6", "X11", "X16"))
+
+str(df)	
+ggplot(data =df, aes(y = value, group = key, color = key) ) + 
+	geom_line(aes(x = rn)) + ylim(c(0,1)) + theme_bw()
+
+
+
+
+
+
 
